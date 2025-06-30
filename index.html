@@ -6,24 +6,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body{font-family:sans-serif;padding:2rem;line-height:1.6}
-    h1  {font-size:1.6rem;margin-bottom:1rem}
+    h1{font-size:1.6rem;margin-bottom:1rem}
     .question{margin-bottom:1rem}
     .formal{font-weight:600;margin-right:.5rem}
     input[type=text]{padding:.4rem;border:1px solid #ccc;border-radius:4px;width:14rem;max-width:90%}
     .correct{border-color:#4CAF50}
-    .wrong  {border-color:#F44336}
-    .actionBtn{margin-top:1rem;padding:.6rem 1.4rem;border:none;border-radius:4px;color:#fff;font-size:1rem;cursor:pointer}
+    .wrong{border-color:#F44336}
+    .actionBtn{margin-top:.6rem;padding:.6rem 1.2rem;border:none;border-radius:4px;color:#fff;font-size:1rem;cursor:pointer}
     #gradeBtn{background:#4CAF50}
-    #nextBtn {background:#FF9800}
+    #nextBtn{background:#FF9800}
     #listBtn{background:#2196F3}
-    #mode50Btn{background:#673AB7}
+    #mode10Btn,#mode50Btn{background:#607D8B}
     #backBtn{background:#9E9E9E}
     #score{margin-top:1.2rem;font-weight:bold;font-size:1.2rem}
-    /* リストテーブル */
+    /* list */
     #listView{display:none}
-    table{border-collapse:collapse;width:100%;max-width:600px;margin-top:1rem}
+    .flexTables{display:flex;flex-wrap:wrap;gap:2rem}
+    table{border-collapse:collapse;width:48%;min-width:260px}
     th,td{border:1px solid #ddd;padding:.4rem;text-align:left}
     th{background:#f2f2f2}
+    @media(max-width:600px){table{width:100%}}
   </style>
 </head>
 <body>
@@ -31,7 +33,7 @@
   <!-- Quiz View -->
   <div id="quizView">
     <p style="margin:.5rem 0;">問題数:
-      <button id="mode10Btn" class="actionBtn" style="background:#607D8B">10問</button>
+      <button id="mode10Btn" class="actionBtn">10問</button>
       <button id="mode50Btn" class="actionBtn">50問</button>
     </p>
     <div id="quiz"></div>
@@ -43,86 +45,61 @@
 
   <!-- List View -->
   <div id="listView">
-    <h2>フード</h2>
-    <table>
-      <thead><tr><th>正式名称</th><th>略語</th></tr></thead>
-      <tbody id="foodBody"></tbody>
-    </table>
-    <h2 style="margin-top:2rem;">ドリンク</h2>
-    <table>
-      <thead><tr><th>正式名称</th><th>略語</th></tr></thead>
-      <tbody id="drinkBody"></tbody>
-    </table>
+    <div class="flexTables">
+      <div style="flex:1 1 260px;min-width:260px;">
+        <h2>フード</h2>
+        <table>
+          <thead><tr><th>正式名称</th><th>略語</th></tr></thead>
+          <tbody id="foodBody"></tbody>
+        </table>
+      </div>
+      <div style="flex:1 1 260px;min-width:260px;">
+        <h2>ドリンク</h2>
+        <table>
+          <thead><tr><th>正式名称</th><th>略語</th></tr></thead>
+          <tbody id="drinkBody"></tbody>
+        </table>
+      </div>
+    </div>
     <button id="backBtn" class="actionBtn" style="margin-top:1.5rem;">クイズに戻る</button>
   </div>
 
 <script>
-// ----------------------------------------------
-// データ: 正式名称 & 略語 & 種別  (97件)
-// ----------------------------------------------
+// ------------------- データ -------------------
 const data=[
+// フード47
 {formal:"ワカモレ",abbr:"ワカモレ",type:"food"},
-{formal:"サッポロ生ビール",abbr:"生",type:"drink"},
-{formal:"チーズの盛り合わせ3種盛り",abbr:"チー盛り",type:"food"},
-{formal:"コロナビール",abbr:"コロナ",type:"drink"},
+{formal:"チーズの盛り合わせ",abbr:"チー盛り",type:"food"},
 {formal:"前菜盛り合わせ（2人前）",abbr:"前盛り2",type:"food"},
-{formal:"シャンディーガフ",abbr:"シャンディ",type:"drink"},
 {formal:"イチボのローストビーフ",abbr:"ロービー",type:"food"},
-{formal:"ノンアルコールビール",abbr:"フリー",type:"drink"},
 {formal:"自家製スモークサーモンのカルパッチョ",abbr:"カルパ",type:"food"},
-{formal:"デュワーズハイボール",abbr:"ハイボール",type:"drink"},
 {formal:"フライドポテト",abbr:"ポテト",type:"food"},
-{formal:"ジンジャーハイボール",abbr:"ジンハイ",type:"drink"},
 {formal:"小海老とエリンギのアヒージョ",abbr:"エビージョ",type:"food"},
-{formal:"コーラハイボール",abbr:"コークハイ",type:"drink"},
 {formal:"アヒージョ用バゲット6pc",abbr:"アヒージョバゲット6pc",type:"food"},
-{formal:"和ら麦（ロック）",abbr:"むぎロック",type:"drink"},
 {formal:"厚切り牛タンステーキ",abbr:"タン",type:"food"},
-{formal:"からり芋（水割り）",abbr:"いも水",type:"drink"},
 {formal:"ローストビーフのナチョスマウンテン",abbr:"ナチョス",type:"food"},
-{formal:"レモンサワー",abbr:"レモサワ",type:"drink"},
 {formal:"バッファローBBQウィング",abbr:"バッファロー",type:"food"},
-{formal:"濃厚梅酒（ソーダ）",abbr:"うめソー",type:"drink"},
 {formal:"ムール貝の白ワイン蒸し",abbr:"ムール貝",type:"food"},
-{formal:"バカルディモヒート",abbr:"モヒート",type:"drink"},
 {formal:"シェフの気まぐれサラダ",abbr:"シェフサラ",type:"food"},
-{formal:"カシスオレンジ",abbr:"カシオレ",type:"drink"},
 {formal:"クラシックシーザーサラダ",abbr:"シザサラ",type:"food"},
-{formal:"カシスソーダ",abbr:"カシソー",type:"drink"},
 {formal:"希少部位イチボのグリル150g",abbr:"イチボ150",type:"food"},
-{formal:"カシスウーロン",abbr:"カシウー",type:"drink"},
 {formal:"厳選赤身ランプのグリル300g",abbr:"ランプ300",type:"food"},
-{formal:"ファジーネーブル",abbr:"ファジー",type:"drink"},
 {formal:"究極の牛カツ90g",abbr:"牛カツ小",type:"food"},
-{formal:"ピーチソーダ",abbr:"ももソー",type:"drink"},
 {formal:"厳選赤身肉のステーキ食べ比べ300g",abbr:"食べ比べ",type:"food"},
-{formal:"ピーチウーロン",abbr:"ももウー",type:"drink"},
 {formal:"幻の牛タンブリアン 120g",abbr:"タンブリ",type:"food"},
-{formal:"ジントニック",abbr:"ジントニ",type:"drink"},
 {formal:"炎のチキンファヒータ",abbr:"ファヒータ",type:"food"},
-{formal:"ジンバック",abbr:"バック",type:"drink"},
 {formal:"ヤバトン300gUP",abbr:"ヤバトン300",type:"food"},
-{formal:"モスコミュール",abbr:"モスコ",type:"drink"},
 {formal:"おすすめチーズフォンデュセット（2、3名様用）",abbr:"フォンデュセット",type:"food"},
-{formal:"ブルドッグ",abbr:"ドッグ",type:"drink"},
 {formal:"お肉専用チーズS",abbr:"チーS",type:"food"},
-{formal:"キティ",abbr:"キティ",type:"drink"},
 {formal:"ガーリックバゲット6pc",abbr:"フォンデュバゲット6pc",type:"food"},
-{formal:"キール",abbr:"キール",type:"drink"},
 {formal:"フォンデュ用野菜盛り合わせ",abbr:"ヤサモリ",type:"food"},
-{formal:"ハウスワイン赤",abbr:"ハウス赤",type:"drink"},
-{formal:"スペイン豚のローストポーク50g",abbr:"ローポー50",type:"food"},
-{formal:"ハウスワイン白",abbr:"ハウス白",type:"drink"},
+{formal:"スペイン豚のローストポーク50g",abbr:"50ローポー",type:"food"},
 {formal:"フライドチキン3pc",abbr:"3チキ",type:"food"},
-{formal:"サングリア　赤",abbr:"サング赤",type:"drink"},
 {formal:"海老フリッター6pc",abbr:"6エビ",type:"food"},
-{formal:"サングリア　白",abbr:"サング白",type:"drink"},
 {formal:"HOTチョリソー4pc",abbr:"4チョリ",type:"food"},
-{formal:"自家製シトラスコーラ",abbr:"シトラス",type:"drink"},
 {formal:"ソーセージ4pc",abbr:"4ソーセージ",type:"food"},
-{formal:"自家製レッドコーラ",abbr:"レッド",type:"drink"},
 {formal:"4種のチーズとはちみつのピッツァ",abbr:"チーピザ",type:"food"},
-{formal:"チョリソーとベーコンのメキシカンピザ",abbr:"メキシカンピザ",type:"food"},
+{formal:"チョリソーとベーコンのメキシカンピザ",abbr:"メキシカン",type:"food"},
 {formal:"マルゲリータ",abbr:"マルゲ",type:"food"},
 {formal:"チーズが溢れ出すシカゴピザ",abbr:"シカゴ",type:"food"},
 {formal:"チーズミートマニアパスタ",abbr:"ミートパスタ",type:"food"},
@@ -138,121 +115,168 @@ const data=[
 {formal:"本日のジェラート",abbr:"アイス",type:"food"},
 {formal:"極みのなめらかプリン",abbr:"プリン",type:"food"},
 {formal:"BDシンデレラパフェ",abbr:"シンデレラ",type:"food"},
-{formal:"トニックウォーター",abbr:"トニック",type:"drink"},
-{formal:"オリジナルコーヒー（HOT）",abbr:"ホットコーヒー",type:"drink"},
-{formal:"オーガニックティー（ICE）",abbr:"アイスティー",type:"drink"},
-{formal:"ウーロン茶",abbr:"ウーチャ",type:"drink"},
-{formal:"リョクチャ",abbr:"リョクチャ",type:"drink"},
+
+// ドリンク50
+{formal:"サッポロ生ビール",abbr:"生",type:"drink"},
+{formal:"コロナビール",abbr:"コロナ",type:"drink"},
+{formal:"シャンディーガフ",abbr:"シャンディ",type:"drink"},
+{formal:"ノンアルコールビール",abbr:"フリー",type:"drink"},
+{formal:"デュワーズハイボール",abbr:"ハイボール",type:"drink"},
+{formal:"ジンジャーハイボール",abbr:"ジンハイ",type:"drink"},
+{formal:"コーラハイボール",abbr:"コークハイ",type:"drink"},
+{formal:"和ら麦（ロック）",abbr:"むぎロック",type:"drink"},
+{formal:"からり芋（水割り）",abbr:"いも水",type:"drink"},
+{formal:"レモンサワー",abbr:"レモサワ",type:"drink"},
+{formal:"濃厚梅酒（ソーダ）",abbr:"うめソー",type:"drink"},
+{formal:"バカルディモヒート",abbr:"モヒート",type:"drink"},
+{formal:"カシスオレンジ",abbr:"カシオレ",type:"drink"},
+{formal:"カシスソーダ",abbr:"カシソー",type:"drink"},
+{formal:"カシスウーロン",abbr:"カシウー",type:"drink"},
+{formal:"ファジーネーブル",abbr:"ファジー",type:"drink"},
+{formal:"ピーチソーダ",abbr:"ももソー",type:"drink"},
+{formal:"ピーチウーロン",abbr:"ピチウー",type:"drink"},
+{formal:"ジントニック",abbr:"ジントニ",type:"drink"},
+{formal:"ジンバック",abbr:"ジンバック",type:"drink"},
+{formal:"モスコミュール",abbr:"モスコミ",type:"drink"},
+{formal:"ブルドッグ",abbr:"ブルドッグ",type:"drink"},
+{formal:"キティ",abbr:"キティ",type:"drink"},
+{formal:"キール",abbr:"キール",type:"drink"},
+{formal:"ハウスワイン赤",abbr:"赤ワイン",type:"drink"},
+{formal:"ハウスワイン白",abbr:"白ワイン",type:"drink"},
+{formal:"サングリア　赤",abbr:"サン赤",type:"drink"},
+{formal:"サングリア　白",abbr:"サン白",type:"drink"},
+{formal:"自家製シトラスコーラ",abbr:"シトラス",type:"drink"},
+{formal:"自家製レッドコーラ",abbr:"レッドコーラ",type:"drink"},
+{formal:"自家製ジンジャーエール",abbr:"自家ジン",type:"drink"},
+{formal:"自家製レモネード",abbr:"レモネ",type:"drink"},
+{formal:"カシススカッシュ",abbr:"カシスカ",type:"drink"},
+{formal:"カシスグレープフルーツ",abbr:"カシグレ",type:"drink"},
+{formal:"トロピカルピーチスカッシュ",abbr:"ピチスカ",type:"drink"},
+{formal:"ピーチオレンジ",abbr:"ピチオレ",type:"drink"},
+{formal:"パインスカッシュ",abbr:"パインスカ",type:"drink"},
+{formal:"マンゴーパイン",abbr:"マンゴパイ",type:"drink"},
+{formal:"ウーロン茶",abbr:"ウーロン",type:"drink"},
+{formal:"緑茶",abbr:"緑茶",type:"drink"},
 {formal:"コーラ",abbr:"コーラ",type:"drink"},
 {formal:"ジンジャーエール",abbr:"ジンジャ",type:"drink"},
-{formal:"アップルジュース",abbr:"リンJ",type:"drink"},
-{formal:"オレンジジュース",abbr:"オレJ",type:"drink"},
-{formal:"グレープフルーツジュース",abbr:"グレJ",type:"drink"},
-{formal:"パインジュース",abbr:"パインJ",type:"drink"},
-{formal:"マンゴージュース",abbr:"マンゴJ",type:"drink"}
+{formal:"アップルジュース",abbr:"アップル",type:"drink"},
+{formal:"オレンジジュース",abbr:"オレンジ",type:"drink"},
+{formal:"グレープフルーツジュース",abbr:"グレフル",type:"drink"},
+{formal:"パインジュース",abbr:"パイン",type:"drink"},
+{formal:"マンゴージュース",abbr:"マンゴー",type:"drink"},
+{formal:"トニックウォーター",abbr:"トニック",type:"drink"},
+{formal:"オリジナルコーヒー（HOT）",abbr:"コーヒー",type:"drink"},
+{formal:"オーガニックティー（ICE）",abbr:"オーガニック",type:"drink"}
 ];
 
-let questionCount = 10;
-let pointsPerQuestion = 1;
+// ------------------- 変数 & 要素 -------------------
+let currentMode=10; // 10 or 50
 let currentSet=[];
-let inputs=[];
+const quizEl=document.getElementById("quiz");
+const scoreEl=document.getElementById("score");
+const gradeBtn=document.getElementById("gradeBtn");
+const nextBtn=document.getElementById("nextBtn");
 
-function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
-
+// ------------------- クイズ -------------------
 function initQuiz(){
-  // リセット
-  document.getElementById('quiz').innerHTML='';
-  document.getElementById('score').textContent='';
-  document.getElementById('nextBtn').style.display='none';
-  document.getElementById('gradeBtn').disabled=false;
-  inputs=[];
-
-  currentSet = shuffle([...data]).slice(0,questionCount);
-  const quizDiv=document.getElementById('quiz');
-
-  currentSet.forEach((item,idx)=>{
-    const div=document.createElement('div');
-    div.className='question';
-    div.innerHTML=`<span class="formal">${idx+1}. ${item.formal}</span>`;
-    const input=document.createElement('input');
-    input.type='text';
-    input.dataset.answer=item.abbr;
-    div.appendChild(input);
-    quizDiv.appendChild(div);
-    inputs.push(input);
+  quizEl.innerHTML="";
+  scoreEl.textContent="";
+  nextBtn.style.display="none";
+  currentSet=shuffle([...data]).slice(0,currentMode);
+  currentSet.forEach((item,i)=>{
+    const div=document.createElement("div");
+    div.className="question";
+    div.innerHTML=`<span class="formal">${item.formal}</span><input type="text" data-index="${i}">`;
+    quizEl.appendChild(div);
   });
 }
 
 function gradeQuiz(){
   let correct=0;
+  const inputs=quizEl.querySelectorAll("input");
   inputs.forEach(inp=>{
-    const user=inp.value.trim();
-    const ans=inp.dataset.answer;
-    if(user===ans){
-      inp.classList.add('correct');
-      correct++;
+    const idx=parseInt(inp.dataset.index);
+    const ans=inp.value.trim();
+    if(ans!==""&&ans===currentSet[idx].abbr){
+      correct++; inp.classList.add("correct");
     }else{
-      inp.classList.add('wrong');
-      if(!inp.nextSibling){
-        const span=document.createElement('span');
-        span.style.marginLeft='0.5rem';
-        span.style.color='#F44336';
-        span.textContent=`→ ${ans}`;
-        inp.parentNode.appendChild(span);
+      inp.classList.add("wrong");
+      if(!inp.nextSibling||!inp.nextSibling.classList.contains("correctAns")){
+        const span=document.createElement("span");
+        span.style.color="#F44336";
+        span.className="correctAns";
+        span.textContent=` → ${currentSet[idx].abbr}`;
+        inp.after(span);
       }
     }
-    inp.disabled=true;
   });
-  const totalPoints = correct * pointsPerQuestion;
-  const maxPoints   = questionCount * pointsPerQuestion;
-  document.getElementById('score').textContent=`正解: ${correct} / ${questionCount} 問  得点: ${totalPoints} / ${maxPoints} 点`;
-  document.getElementById('gradeBtn').disabled=true;
-  document.getElementById('nextBtn').style.display='inline-block';
+  if(currentMode===10){
+    scoreEl.textContent=`正解: ${correct} / 10 問`;
+  }else{
+    scoreEl.textContent=`正解: ${correct} / 50 問　得点: ${correct*2} / 100 点`;
+  }
+  nextBtn.style.display="inline-block";
 }
+
+function nextQuiz(){ initQuiz(); }
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// ------------------- リスト表示 -------------------
+const listView=document.getElementById("listView");
+const listBtn=document.getElementById("listBtn");
+const backBtn=document.getElementById("backBtn");
+const foodBody=document.getElementById("foodBody");
+const drinkBody=document.getElementById("drinkBody");
 
 function buildList(){
-  const foodBody=document.getElementById('foodBody');
-  const drinkBody=document.getElementById('drinkBody');
-  foodBody.innerHTML='';
-  drinkBody.innerHTML='';
-  data.forEach(d=>{
-    const tr=document.createElement('tr');
+  foodBody.innerHTML=""; drinkBody.innerHTML="";
+  data.filter(d=>d.type==="food").forEach(d=>{
+    const tr=document.createElement("tr");
     tr.innerHTML=`<td>${d.formal}</td><td>${d.abbr}</td>`;
-    if(d.type==='food')foodBody.appendChild(tr);else drinkBody.appendChild(tr);
+    foodBody.appendChild(tr);
+  });
+  data.filter(d=>d.type==="drink").forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.formal}</td><td>${d.abbr}</td>`;
+    drinkBody.appendChild(tr);
   });
 }
 
-function setMode(count){
-  questionCount=count;
-  pointsPerQuestion=(count===50?2:1);
-  initQuiz();
-}
+// ------------------- イベント -------------------
 
-window.addEventListener('DOMContentLoaded',()=>{
-  const gradeBtn=document.getElementById('gradeBtn');
-  const nextBtn =document.getElementById('nextBtn');
-  const listBtn =document.getElementById('listBtn');
-  const backBtn =document.getElementById('backBtn');
-  const mode10Btn=document.getElementById('mode10Btn');
-  const mode50Btn=document.getElementById('mode50Btn');
+document.getElementById("mode10Btn").onclick=()=>{currentMode=10;initQuiz();};
+document.getElementById("mode50Btn").onclick=()=>{currentMode=50;initQuiz();};
 
-  gradeBtn.addEventListener('click',gradeQuiz);
-  nextBtn.addEventListener('click',initQuiz);
-  listBtn.addEventListener('click',()=>{
-    buildList();
-    document.getElementById('quizView').style.display='none';
-    document.getElementById('listView').style.display='block';
-  });
-  backBtn.addEventListener('click',()=>{
-    document.getElementById('listView').style.display='none';
-    document.getElementById('quizView').style.display='block';
-  });
+gradeBtn.onclick=gradeQuiz;
+nextBtn.onclick=nextQuiz;
 
-  mode10Btn.addEventListener('click',()=>setMode(10));
-  mode50Btn.addEventListener('click',()=>setMode(50));
+listBtn.onclick=()=>{
+  buildList();
+  document.getElementById("quizView").style.display="none";
+  listView.style.display="block";
+};
+backBtn.onclick=()=>{
+  listView.style.display="none";
+  document.getElementById("quizView").style.display="block";
+};
 
-  initQuiz();
+// ------------------- IME Enter 防止 -------------------
+let isComposing=false;
+document.addEventListener("compositionstart",()=>isComposing=true);
+document.addEventListener("compositionend",()=>isComposing=false);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&!isComposing&&e.target.tagName==="INPUT"){e.preventDefault();}
 });
+
+// ------------------- 初期化 -------------------
+initQuiz();
 </script>
 </body>
 </html>
