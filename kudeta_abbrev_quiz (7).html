@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>KU-DETA 略語テスト</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: sans-serif; padding: 2rem; line-height: 1.6; }
+  h1 { font-size: 1.6rem; margin-bottom: 1rem; }
+  .question { margin-bottom: 1rem; }
+  .formal { font-weight: 600; }
+  input[type=text] { padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; width: 14rem; max-width: 90%; }
+  .correct { color: #2E8B57; }
+  .wrong { color: #B22222; }
+  #gradeBtn { margin-top: 1rem; padding: 0.6rem 1.5rem; border: none; border-radius: 4px; background:#4CAF50; color:#fff; cursor:pointer; font-size:1rem; }
+  #score { margin-top: 1.2rem; font-weight: bold; font-size: 1.2rem; }
+  #retryBtn { margin-top: 0.8rem; padding: 0.6rem 1.5rem; border:none; border-radius:4px; background:#2196F3; color:#fff; cursor:pointer; font-size:1rem; }
+</style>
+</head>
+<body>
+<h1>KU-DETA 略語テスト（10問一括）</h1>
+<div id="quiz"></div>
+<button id="gradeBtn">採点する</button>
+<p id="score"></p>
+
+<script>
+// 正式名称と略語ペア（97件）
+const data = [
+  {formal:"ワカモレ（アボカドディップ＆チップス）", abbr:"ワカモレ"},
+  {formal:"サッポロ生ビール", abbr:"生"},
+  {formal:"厳選チーズ3種盛り", abbr:"チー盛り"},
+  {formal:"コロナビール", abbr:"コロナ"},
+  {formal:"前菜盛り合わせ（2人前）", abbr:"前盛り（2人前）"},
+  {formal:"シャンディーガフ", abbr:"シャンディ"},
+  {formal:"黒毛吟醸牛のローストビーフ", abbr:"ロービー"},
+  {formal:"ノンアルコールビール", abbr:"フリー"},
+  {formal:"自家製スモークサーモンのカルパッチョ", abbr:"カルパ"},
+  {formal:"デュワーズハイボール", abbr:"ハイボール"},
+  {formal:"フライドポテト", abbr:"ポテト"},
+  {formal:"ジンジャーハイボール", abbr:"ジンハイ"},
+  {formal:"小海老とエリンギのアヒージョ", abbr:"エビージョ"},
+  {formal:"コーラハイボール", abbr:"コークハイ"},
+  {formal:"アヒージョ用バゲット6pc", abbr:"アヒージョバゲット6pc"},
+  {formal:"和ら麦（ロック）", abbr:"むぎロック"},
+  {formal:"厚切り牛タンステーキ", abbr:"タン"},
+  {formal:"からり芋（水割り）", abbr:"いも水"},
+  {formal:"ローストビーフのナチョスマウンテン", abbr:"ナチョス"},
+  {formal:"レモンサワー", abbr:"レモサワ"},
+  {formal:"バッファローBBQウィング", abbr:"バッファロー"},
+  {formal:"濃厚梅酒（ソーダ）", abbr:"うめソーダ"},
+  {formal:"ムール貝の白ワイン蒸し", abbr:"ムール貝"},
+  {formal:"バカルディモヒート", abbr:"モヒート"},
+  {formal:"シェフの気まぐれサラダ", abbr:"シェフサラ"},
+  {formal:"カシスオレンジ", abbr:"カシオレ"},
+  {formal:"クラシックシーザーサラダ", abbr:"シザサラ"},
+  {formal:"カシスソーダ", abbr:"カシソー"},
+  {formal:"希少部位イチボのグリル150g", abbr:"イチボ150"},
+  {formal:"カシスウーロン", abbr:"カシウー"},
+  {formal:"厳選赤身ランプのグリル300g", abbr:"ランプ300"},
+  {formal:"ファジーネーブル", abbr:"ファジー"},
+  {formal:"究極の牛カツ90g", abbr:"牛カツ小"},
+  {formal:"ピーチソーダ", abbr:"ももソー"},
+  {formal:"厳選赤身肉のステーキ食べ比べ300g", abbr:"食べ比べ"},
+  {formal:"ピーチウーロン", abbr:"ももウー"},
+  {formal:"幻の牛タンブリアン 120g", abbr:"タンブリ"},
+  {formal:"ジントニック", abbr:"ジントニ"},
+  {formal:"炎のチキンファヒータ", abbr:"ファヒータ"},
+  {formal:"ジンバック", abbr:"バック"},
+  {formal:"ヤバトン300gUP", abbr:"ヤバトン300"},
+  {formal:"モスコミュール", abbr:"モスコ"},
+  {formal:"おすすめチーズフォンデュセット（2、3名様用）", abbr:"フォンデュセット"},
+  {formal:"ブルドッグ", abbr:"ドッグ"},
+  {formal:"お肉専用チーズS", abbr:"チーS"},
+  {formal:"キティ", abbr:"キティ"},
+  {formal:"ガーリックバゲット6pc", abbr:"フォンデュバゲット6pc"},
+  {formal:"キール", abbr:"キール"},
+  {formal:"フォンデュ用野菜盛り合わせ", abbr:"ヤサモリ"},
+  {formal:"ハウスワイン赤", abbr:"ハウス赤"},
+  {formal:"スペイン豚のローストポーク50g", abbr:"50ローポー"},
+  {formal:"ハウスワイン白", abbr:"ハウス白"},
+  {formal:"フライドチキン3pc", abbr:"3チキ"},
+  {formal:"サングリア　赤", abbr:"サング赤"},
+  {formal:"海老フリッター6pc", abbr:"6エビ"},
+  {formal:"サングリア　白", abbr:"サング白"},
+  {formal:"HOTチョリソー4pc", abbr:"4チョリ"},
+  {formal:"自家製シトラスコーラ", abbr:"シトラス"},
+  {formal:"ソーセージ4pc", abbr:"4ソーセージ"},
+  {formal:"自家製レッドコーラ", abbr:"レッド"},
+  {formal:"4種のチーズとはちみつのピッツァ", abbr:"4チーズハニー"},
+  {formal:"チョリソーとベーコンのメキシカンピザ", abbr:"メキシカンピザ"},
+  {formal:"マルゲリータ", abbr:"マルゲ"},
+  {formal:"チーズが溢れ出すシカゴピザ", abbr:"シカゴピザ"},
+  {formal:"チーズミートマニアパスタ", abbr:"ミートマニア"},
+  {formal:"自家製パンチェッタのカルボナーラ", abbr:"カルボ"},
+  {formal:"自家製スモークサーモンのクリームパスタ", abbr:"サーモンクリーム"},
+  {formal:"自家製リコッタチーズのトマトパスタ", abbr:"リコッタパスタ"},
+  {formal:"サイコロステーキのガーリックライス", abbr:"ガーリックライス"},
+  {formal:"グリルチキンのジャンバラヤ", abbr:"ジャンバラヤ"},
+  {formal:"本日のリゾット", abbr:"本日リゾット"},
+  {formal:"自家製バスクチーズケーキ", abbr:"バスク"},
+  {formal:"トリプルベリーの濃厚カタラーナ", abbr:"カタラーナ"},
+  {formal:"本日のミニパフェ", abbr:"ミニパフェ"},
+  {formal:"本日のジェラート", abbr:"ジェラート"},
+  {formal:"極みのなめらかプリン", abbr:"プリン"},
+  {formal:"BDシンデレラパフェ", abbr:"シンデレラ"},
+  {formal:"トニックウォーター", abbr:"トニック"},
+  {formal:"オリジナルコーヒー（HOT）", abbr:"コーヒーHOT"},
+  {formal:"オーガニックティー（ICE）", abbr:"ティーICE"},
+  {formal:"自家製ジンジャーエール", abbr:"ジンジャエール"},
+  {formal:"自家製レモネード", abbr:"レモネード"},
+  {formal:"カシススカッシュ", abbr:"カシスカ"},
+  {formal:"カシスグレープフルーツ", abbr:"カシグレ"},
+  {formal:"トロピカルピーチスカッシュ", abbr:"ピーチスカ"},
+  {formal:"ピーチオレンジ", abbr:"ピーチオレ"},
+  {formal:"パインスカッシュ", abbr:"パインスカ"},
+  {formal:"マンゴーパイン", abbr:"マンゴパイン"},
+  {formal:"ウーロン茶", abbr:"ウーロン"},
+  {formal:"緑茶", abbr:"緑茶"},
+  {formal:"コーラ", abbr:"コーラ"},
+  {formal:"ジンジャーエール", abbr:"ジンジャ"},
+  {formal:"アップルジュース", abbr:"アップル"},
+  {formal:"オレンジジュース", abbr:"オレンジ"},
+  {formal:"グレープフルーツジュース", abbr:"グレフル"},
+  {formal:"パインジュース", abbr:"パイン"},
+  {formal:"マンゴージュース", abbr:"マンゴ"}
+];
+
+const totalQuestions = 10;
+let selected = [];
+
+function init() {
+  // シャッフルして先頭10件取得
+  selected = [...data].sort(() => Math.random() - 0.5).slice(0, totalQuestions);
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  selected.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `<span class="formal">Q${idx + 1}. ${q.formal}</span><br><input type="text" id="ans-${idx}" placeholder="略語を入力"> <span id="res-${idx}"></span>`;
+    quiz.appendChild(div);
+  });
+}
+
+function grade() {
+  let score = 0;
+  selected.forEach((q, idx) => {
+    const input = document.getElementById(`ans-${idx}`);
+    const res = document.getElementById(`res-${idx}`);
+    const user = input.value.trim();
+    if (user === q.abbr) {
+      res.textContent = '◯';
+      res.className = 'correct';
+      score++;
+    } else {
+      res.textContent = `×（正: ${q.abbr}）`;
+      res.className = 'wrong';
+    }
+    input.disabled = true;
+  });
+  document.getElementById('score').textContent = `スコア: ${score} / ${totalQuestions}`;
+  document.getElementById('gradeBtn').disabled = true;
+  addRetry();
+}
+
+function addRetry() {
+  const retryBtn = document.createElement('button');
+  retryBtn.id = 'retryBtn';
+  retryBtn.textContent = 'もう一度';
+  retryBtn.onclick = () => location.reload();
+  document.body.appendChild(retryBtn);
+}
+
+// IME変換中 Enter でフォーム送信されるのを防止（全 input 共通）
+document.addEventListener('compositionstart', (e) => {
+  if (e.target.matches('input[type=text]')) {
+    e.target.dataset.composing = 'true';
+  }
+});
+document.addEventListener('compositionend', (e) => {
+  if (e.target.matches('input[type=text]')) {
+    e.target.dataset.composing = 'false';
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.matches('input[type=text]')) {
+    if (e.target.dataset.composing === 'true') {
+      e.preventDefault();
+    }
+  }
+});
+
+// 初期化
+init();
+
+document.getElementById('gradeBtn').addEventListener('click', grade);
+</script>
+</body>
+</html>
