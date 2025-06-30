@@ -5,34 +5,39 @@
   <title>KU-DETA 略語テスト</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; padding: 2rem; line-height: 1.6; }
-    h1   { font-size: 1.6rem; margin-bottom: 1rem; }
-    .question { margin-bottom: 1rem; }
-    .formal   { font-weight: 600; margin-right: .5rem; }
-    input[type=text] { padding:.4rem; border:1px solid #ccc; border-radius:4px; width:14rem; max-width:90%; }
-    .correct  { border-color:#4CAF50; }
-    .wrong    { border-color:#F44336; }
-    .actionBtn{ margin-top:1rem; padding:.6rem 1.5rem; border:none; border-radius:4px; color:#fff; font-size:1rem; cursor:pointer; }
-    #gradeBtn { background:#4CAF50; }
-    #nextBtn  { background:#FF9800; }
-    #listBtn  { background:#2196F3; }
-    #backBtn  { background:#9E9E9E; }
-    #score    { margin-top:1.2rem; font-weight:bold; font-size:1.2rem; }
+    body{font-family:sans-serif;padding:2rem;line-height:1.6}
+    h1  {font-size:1.6rem;margin-bottom:1rem}
+    .question{margin-bottom:1rem}
+    .formal{font-weight:600;margin-right:.5rem}
+    input[type=text]{padding:.4rem;border:1px solid #ccc;border-radius:4px;width:14rem;max-width:90%}
+    .correct{border-color:#4CAF50}
+    .wrong  {border-color:#F44336}
+    .actionBtn{margin-top:1rem;padding:.6rem 1.4rem;border:none;border-radius:4px;color:#fff;font-size:1rem;cursor:pointer}
+    #gradeBtn{background:#4CAF50}
+    #nextBtn {background:#FF9800}
+    #listBtn{background:#2196F3}
+    #mode50Btn{background:#673AB7}
+    #backBtn{background:#9E9E9E}
+    #score{margin-top:1.2rem;font-weight:bold;font-size:1.2rem}
     /* リストテーブル */
-    #listView { display:none; }
-    table     { border-collapse:collapse; width:100%; max-width:600px; margin-top:1rem; }
-    th,td     { border:1px solid #ddd; padding:.4rem; text-align:left; }
-    th        { background:#f2f2f2; }
+    #listView{display:none}
+    table{border-collapse:collapse;width:100%;max-width:600px;margin-top:1rem}
+    th,td{border:1px solid #ddd;padding:.4rem;text-align:left}
+    th{background:#f2f2f2}
   </style>
 </head>
 <body>
-  <h1>KU-DETA 略語テスト（10問一括）</h1>
+  <h1>KU-DETA 略語テスト</h1>
   <!-- Quiz View -->
   <div id="quizView">
+    <p style="margin:.5rem 0;">問題数:
+      <button id="mode10Btn" class="actionBtn" style="background:#607D8B">10問</button>
+      <button id="mode50Btn" class="actionBtn">50問</button>
+    </p>
     <div id="quiz"></div>
     <button id="gradeBtn" class="actionBtn">採点する</button>
-    <button id="nextBtn"  class="actionBtn" style="display:none;">次の10問</button>
-    <button id="listBtn"  class="actionBtn">リストを確認</button>
+    <button id="nextBtn" class="actionBtn" style="display:none;">新しいセット</button>
+    <button id="listBtn" class="actionBtn">リストを確認</button>
     <p id="score"></p>
   </div>
 
@@ -53,127 +58,125 @@
 
 <script>
 // ----------------------------------------------
-// データ（正式名称 & 略語 & 種別）全 97 件
+// データ: 正式名称 & 略語 & 種別  (97件)
 // ----------------------------------------------
-const data = [
-  {formal:"ワカモレ", abbr:"ワカモレ", type:"food"},
-  {formal:"サッポロ生ビール", abbr:"生", type:"drink"},
-  {formal:"チーズの盛り合わせ", abbr:"チー盛り", type:"food"},
-  {formal:"コロナビール", abbr:"コロナ", type:"drink"},
-  {formal:"前菜盛り合わせ（2人前）", abbr:"前盛り2", type:"food"},
-  {formal:"シャンディーガフ", abbr:"シャンディ", type:"drink"},
-  {formal:"イチボのローストビーフ", abbr:"ロービー", type:"food"},
-  {formal:"ノンアルコールビール", abbr:"フリー", type:"drink"},
-  {formal:"自家製スモークサーモンのカルパッチョ", abbr:"カルパ", type:"food"},
-  {formal:"デュワーズハイボール", abbr:"ハイボール", type:"drink"},
-  {formal:"フライドポテト", abbr:"ポテト", type:"food"},
-  {formal:"ジンジャーハイボール", abbr:"ジンハイ", type:"drink"},
-  {formal:"小海老とエリンギのアヒージョ", abbr:"エビージョ", type:"food"},
-  {formal:"コーラハイボール", abbr:"コークハイ", type:"drink"},
-  {formal:"アヒージョ用バゲット6pc", abbr:"バゲット6pc", type:"food"},
-  {formal:"和ら麦（ロック）", abbr:"むぎロック", type:"drink"},
-  {formal:"厚切り牛タンステーキ", abbr:"タン", type:"food"},
-  {formal:"からり芋（水割り）", abbr:"いも水", type:"drink"},
-  {formal:"ローストビーフのナチョスマウンテン", abbr:"ナチョス", type:"food"},
-  {formal:"レモンサワー", abbr:"レモサワ", type:"drink"},
-  {formal:"バッファローBBQウィング", abbr:"バッファロー", type:"food"},
-  {formal:"濃厚梅酒（ソーダ）", abbr:"うめソー", type:"drink"},
-  {formal:"ムール貝の白ワイン蒸し", abbr:"ムール貝", type:"food"},
-  {formal:"バカルディモヒート", abbr:"モヒート", type:"drink"},
-  {formal:"シェフの気まぐれサラダ", abbr:"シェフサラ", type:"food"},
-  {formal:"カシスオレンジ", abbr:"カシオレ", type:"drink"},
-  {formal:"クラシックシーザーサラダ", abbr:"シザサラ", type:"food"},
-  {formal:"カシスソーダ", abbr:"カシソー", type:"drink"},
-  {formal:"希少部位イチボのグリル150g", abbr:"イチボ150", type:"food"},
-  {formal:"カシスウーロン", abbr:"カシウー", type:"drink"},
-  {formal:"厳選赤身ランプのグリル300g", abbr:"ランプ300", type:"food"},
-  {formal:"ファジーネーブル", abbr:"ファジー", type:"drink"},
-  {formal:"究極の牛カツ90g", abbr:"牛カツ小", type:"food"},
-  {formal:"ピーチソーダ", abbr:"ももソー", type:"drink"},
-  {formal:"厳選赤身肉のステーキ食べ比べ300g", abbr:"食べ比べ", type:"food"},
-  {formal:"ピーチウーロン", abbr:"ももウー", type:"drink"},
-  {formal:"幻の牛タンブリアン 120g", abbr:"タンブリ", type:"food"},
-  {formal:"ジントニック", abbr:"ジントニ", type:"drink"},
-  {formal:"炎のチキンファヒータ", abbr:"ファヒータ", type:"food"},
-  {formal:"ジンバック", abbr:"バック", type:"drink"},
-  {formal:"ヤバトン300gUP", abbr:"ヤバトン300", type:"food"},
-  {formal:"モスコミュール", abbr:"モスコ", type:"drink"},
-  {formal:"おすすめチーズフォンデュセット（2、3名様用）", abbr:"フォンデュセット", type:"food"},
-  {formal:"ブルドッグ", abbr:"ドッグ", type:"drink"},
-  {formal:"お肉専用チーズS", abbr:"チーS", type:"food"},
-  {formal:"キティ", abbr:"キティ", type:"drink"},
-  {formal:"ガーリックバゲット6pc", abbr:"フォンデュバゲット6pc", type:"food"},
-  {formal:"キール", abbr:"キール", type:"drink"},
-  {formal:"フォンデュ用野菜盛り合わせ", abbr:"ヤサモリ", type:"food"},
-  {formal:"ハウスワイン赤", abbr:"ハウス赤", type:"drink"},
-  {formal:"スペイン豚のローストポーク50g", abbr:"ローポー50", type:"food"},
-  {formal:"ハウスワイン白", abbr:"ハウス白", type:"drink"},
-  {formal:"フライドチキン3pc", abbr:"3チキ", type:"food"},
-  {formal:"サングリア　赤", abbr:"サング赤", type:"drink"},
-  {formal:"海老フリッター6pc", abbr:"6エビ", type:"food"},
-  {formal:"サングリア　白", abbr:"サング白", type:"drink"},
-  {formal:"HOTチョリソー4pc", abbr:"4チョリ", type:"food"},
-  {formal:"自家製シトラスコーラ", abbr:"シトラス", type:"drink"},
-  {formal:"ソーセージ4pc", abbr:"4ソーセージ", type:"food"},
-  {formal:"自家製レッドコーラ", abbr:"レッド", type:"drink"},
-  {formal:"4種のチーズとはちみつのピッツァ", abbr:"チーピザ", type:"food"},
-  {formal:"チョリソーとベーコンのメキシカンピザ", abbr:"メキシカンピザ", type:"food"},
-  {formal:"マルゲリータ", abbr:"マルゲ", type:"food"},
-  {formal:"チーズが溢れ出すシカゴピザ", abbr:"シカゴ", type:"food"},
-  {formal:"チーズミートマニアパスタ", abbr:"ミートパスタ", type:"food"},
-  {formal:"自家製パンチェッタのカルボナーラ", abbr:"カルボ", type:"food"},
-  {formal:"自家製スモークサーモンのクリームパスタ", abbr:"サーモンパスタ", type:"food"},
-  {formal:"自家製リコッタチーズのトマトパスタ", abbr:"リコッタパスタ", type:"food"},
-  {formal:"サイコロステーキのガーリックライス", abbr:"ガーライス", type:"food"},
-  {formal:"グリルチキンのジャンバラヤ", abbr:"ジャンバラヤ", type:"food"},
-  {formal:"本日のリゾット", abbr:"リゾット", type:"food"},
-  {formal:"自家製バスクチーズケーキ", abbr:"バスク", type:"food"},
-  {formal:"トリプルベリーの濃厚カタラーナ", abbr:"カタラーナ", type:"food"},
-  {formal:"本日のミニパフェ", abbr:"ミニパフェ", type:"food"},
-  {formal:"本日のジェラート", abbr:"アイス", type:"food"},
-  {formal:"極みのなめらかプリン", abbr:"プリン", type:"food"},
-  {formal:"BDシンデレラパフェ", abbr:"シンデレラ", type:"food"},
-  {formal:"トニックウォーター", abbr:"トニック", type:"drink"},
-  {formal:"オリジナルコーヒー（HOT）", abbr:"ホットコーヒー", type:"drink"},
-  {formal:"オーガニックティー（ICE）", abbr:"アイスティー", type:"drink"},
-  {formal:"ウーロン茶", abbr:"ウーチャ", type:"drink"},
-  {formal:"リョクチャ", abbr:"リョクチャ", type:"drink"},
-  {formal:"コーラ", abbr:"コーラ", type:"drink"},
-  {formal:"ジンジャーエール", abbr:"ジンジャ", type:"drink"},
-  {formal:"アップルジュース", abbr:"リンJ", type:"drink"},
-  {formal:"オレンジジュース", abbr:"オレJ", type:"drink"},
-  {formal:"グレープフルーツジュース", abbr:"グレJ", type:"drink"},
-  {formal:"パインジュース", abbr:"パインJ", type:"drink"},
-  {formal:"マンゴージュース", abbr:"マンゴJ", type:"drink"}
+const data=[
+{formal:"ワカモレ",abbr:"ワカモレ",type:"food"},
+{formal:"サッポロ生ビール",abbr:"生",type:"drink"},
+{formal:"チーズn盛り合わせ3種盛り",abbr:"チー盛り",type:"food"},
+{formal:"コロナビール",abbr:"コロナ",type:"drink"},
+{formal:"前菜盛り合わせ（2人前）",abbr:"前盛り（2人前）",type:"food"},
+{formal:"シャンディーガフ",abbr:"シャンディ",type:"drink"},
+{formal:"イチボのローストビーフ",abbr:"ロービー",type:"food"},
+{formal:"ノンアルコールビール",abbr:"フリー",type:"drink"},
+{formal:"自家製スモークサーモンのカルパッチョ",abbr:"カルパ",type:"food"},
+{formal:"デュワーズハイボール",abbr:"ハイボール",type:"drink"},
+{formal:"フライドポテト",abbr:"ポテト",type:"food"},
+{formal:"ジンジャーハイボール",abbr:"ジンハイ",type:"drink"},
+{formal:"小海老とエリンギのアヒージョ",abbr:"エビージョ",type:"food"},
+{formal:"コーラハイボール",abbr:"コークハイ",type:"drink"},
+{formal:"アヒージョ用バゲット6pc",abbr:"バゲット6pc",type:"food"},
+{formal:"和ら麦（ロック）",abbr:"むぎロック",type:"drink"},
+{formal:"厚切り牛タンステーキ",abbr:"タン",type:"food"},
+{formal:"からり芋（水割り）",abbr:"いも水",type:"drink"},
+{formal:"ローストビーフのナチョスマウンテン",abbr:"ナチョス",type:"food"},
+{formal:"レモンサワー",abbr:"レモサワ",type:"drink"},
+{formal:"バッファローBBQウィング",abbr:"バッファロー",type:"food"},
+{formal:"濃厚梅酒（ソーダ）",abbr:"うめソー",type:"drink"},
+{formal:"ムール貝の白ワイン蒸し",abbr:"ムール貝",type:"food"},
+{formal:"バカルディモヒート",abbr:"モヒート",type:"drink"},
+{formal:"シェフの気まぐれサラダ",abbr:"シェフサラ",type:"food"},
+{formal:"カシスオレンジ",abbr:"カシオレ",type:"drink"},
+{formal:"クラシックシーザーサラダ",abbr:"シザサラ",type:"food"},
+{formal:"カシスソーダ",abbr:"カシソー",type:"drink"},
+{formal:"希少部位イチボのグリル150g",abbr:"イチボ150",type:"food"},
+{formal:"カシスウーロン",abbr:"カシウー",type:"drink"},
+{formal:"厳選赤身ランプのグリル300g",abbr:"ランプ300",type:"food"},
+{formal:"ファジーネーブル",abbr:"ファジー",type:"drink"},
+{formal:"究極の牛カツ90g",abbr:"牛カツ小",type:"food"},
+{formal:"ピーチソーダ",abbr:"ももソー",type:"drink"},
+{formal:"厳選赤身肉のステーキ食べ比べ300g",abbr:"食べ比べ",type:"food"},
+{formal:"ピーチウーロン",abbr:"ももウー",type:"drink"},
+{formal:"幻の牛タンブリアン 120g",abbr:"タンブリ",type:"food"},
+{formal:"ジントニック",abbr:"ジントニ",type:"drink"},
+{formal:"炎のチキンファヒータ",abbr:"ファヒータ",type:"food"},
+{formal:"ジンバック",abbr:"バック",type:"drink"},
+{formal:"ヤバトン300gUP",abbr:"ヤバトン300",type:"food"},
+{formal:"モスコミュール",abbr:"モスコ",type:"drink"},
+{formal:"おすすめチーズフォンデュセット（2、3名様用）",abbr:"フォンデュセット",type:"food"},
+{formal:"ブルドッグ",abbr:"ドッグ",type:"drink"},
+{formal:"お肉専用チーズS",abbr:"チーS",type:"food"},
+{formal:"キティ",abbr:"キティ",type:"drink"},
+{formal:"ガーリックバゲット6pc",abbr:"フォンデュバゲット6pc",type:"food"},
+{formal:"キール",abbr:"キール",type:"drink"},
+{formal:"フォンデュ用野菜盛り合わせ",abbr:"ヤサモリ",type:"food"},
+{formal:"ハウスワイン赤",abbr:"ハウス赤",type:"drink"},
+{formal:"スペイン豚のローストポーク50g",abbr:"ローポー50",type:"food"},
+{formal:"ハウスワイン白",abbr:"ハウス白",type:"drink"},
+{formal:"フライドチキン3pc",abbr:"3チキ",type:"food"},
+{formal:"サングリア　赤",abbr:"サング赤",type:"drink"},
+{formal:"海老フリッター6pc",abbr:"6エビ",type:"food"},
+{formal:"サングリア　白",abbr:"サング白",type:"drink"},
+{formal:"HOTチョリソー4pc",abbr:"4チョリ",type:"food"},
+{formal:"自家製シトラスコーラ",abbr:"シトラス",type:"drink"},
+{formal:"ソーセージ4pc",abbr:"4ソーセージ",type:"food"},
+{formal:"自家製レッドコーラ",abbr:"レッド",type:"drink"},
+{formal:"4種のチーズとはちみつのピッツァ",abbr:"チーピザ",type:"food"},
+{formal:"チョリソーとベーコンのメキシカンピザ",abbr:"メキシカンピザ",type:"food"},
+{formal:"マルゲリータ",abbr:"マルゲ",type:"food"},
+{formal:"チーズが溢れ出すシカゴピザ",abbr:"シカゴ",type:"food"},
+{formal:"チーズミートマニアパスタ",abbr:"ミートパスタ",type:"food"},
+{formal:"自家製パンチェッタのカルボナーラ",abbr:"カルボ",type:"food"},
+{formal:"自家製スモークサーモンのクリームパスタ",abbr:"サーモンパスタ",type:"food"},
+{formal:"自家製リコッタチーズのトマトパスタ",abbr:"リコッタパスタ",type:"food"},
+{formal:"サイコロステーキのガーリックライス",abbr:"ガーライス",type:"food"},
+{formal:"グリルチキンのジャンバラヤ",abbr:"ジャンバラヤ",type:"food"},
+{formal:"本日のリゾット",abbr:"リゾット",type:"food"},
+{formal:"自家製バスクチーズケーキ",abbr:"バスク",type:"food"},
+{formal:"トリプルベリーの濃厚カタラーナ",abbr:"カタラーナ",type:"food"},
+{formal:"本日のミニパフェ",abbr:"ミニパフェ",type:"food"},
+{formal:"本日のジェラート",abbr:"アイス",type:"food"},
+{formal:"極みのなめらかプリン",abbr:"プリン",type:"food"},
+{formal:"BDシンデレラパフェ",abbr:"シンデレラ",type:"food"},
+{formal:"トニックウォーター",abbr:"トニック",type:"drink"},
+{formal:"オリジナルコーヒー（HOT）",abbr:"ホットコーヒー",type:"drink"},
+{formal:"オーガニックティー（ICE）",abbr:"アイスティー",type:"drink"},
+{formal:"ウーロン茶",abbr:"ウーチャ",type:"drink"},
+{formal:"リョクチャ",abbr:"リョクチャ",type:"drink"},
+{formal:"コーラ",abbr:"コーラ",type:"drink"},
+{formal:"ジンジャーエール",abbr:"ジンジャ",type:"drink"},
+{formal:"アップルジュース",abbr:"リンJ",type:"drink"},
+{formal:"オレンジジュース",abbr:"オレJ",type:"drink"},
+{formal:"グレープフルーツジュース",abbr:"グレJ",type:"drink"},
+{formal:"パインジュース",abbr:"パインJ",type:"drink"},
+{formal:"マンゴージュース",abbr:"マンゴJ",type:"drink"}
 ];
 
-const QUESTION_COUNT = 10;
-let currentSet = [];
-let inputs = [];
+let questionCount = 10;
+let pointsPerQuestion = 1;
+let currentSet=[];
+let inputs=[];
 
-function shuffle(arr){
-  return arr.sort(()=>Math.random()-0.5);
-}
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
 
 function initQuiz(){
   // リセット
-  document.getElementById('quiz').innerHTML = '';
-  document.getElementById('score').textContent = '';
-  document.getElementById('nextBtn').style.display = 'none';
-  document.getElementById('gradeBtn').disabled = false;
-  inputs = [];
+  document.getElementById('quiz').innerHTML='';
+  document.getElementById('score').textContent='';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('gradeBtn').disabled=false;
+  inputs=[];
 
-  // 問題セット生成
-  currentSet = shuffle([...data]).slice(0,QUESTION_COUNT);
-  const quizDiv = document.getElementById('quiz');
+  currentSet = shuffle([...data]).slice(0,questionCount);
+  const quizDiv=document.getElementById('quiz');
 
-  currentSet.forEach((item, idx)=>{
-    const div = document.createElement('div');
-    div.className = 'question';
-    div.innerHTML = `<span class="formal">${idx+1}. ${item.formal}</span>`;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.dataset.answer = item.abbr;
+  currentSet.forEach((item,idx)=>{
+    const div=document.createElement('div');
+    div.className='question';
+    div.innerHTML=`<span class="formal">${idx+1}. ${item.formal}</span>`;
+    const input=document.createElement('input');
+    input.type='text';
+    input.dataset.answer=item.abbr;
     div.appendChild(input);
     quizDiv.appendChild(div);
     inputs.push(input);
@@ -183,8 +186,8 @@ function initQuiz(){
 function gradeQuiz(){
   let correct=0;
   inputs.forEach(inp=>{
-    const user = inp.value.trim();
-    const ans  = inp.dataset.answer;
+    const user=inp.value.trim();
+    const ans=inp.dataset.answer;
     if(user===ans){
       inp.classList.add('correct');
       correct++;
@@ -194,36 +197,44 @@ function gradeQuiz(){
         const span=document.createElement('span');
         span.style.marginLeft='0.5rem';
         span.style.color='#F44336';
-        span.textContent = `→ ${ans}`;
+        span.textContent=`→ ${ans}`;
         inp.parentNode.appendChild(span);
       }
     }
-    inp.disabled = true;
+    inp.disabled=true;
   });
-  document.getElementById('score').textContent = `スコア: ${correct} / ${QUESTION_COUNT}`;
-  document.getElementById('gradeBtn').disabled = true;
-  document.getElementById('nextBtn').style.display = 'inline-block';
+  const totalPoints = correct * pointsPerQuestion;
+  const maxPoints   = questionCount * pointsPerQuestion;
+  document.getElementById('score').textContent=`正解: ${correct} / ${questionCount} 問  得点: ${totalPoints} / ${maxPoints} 点`;
+  document.getElementById('gradeBtn').disabled=true;
+  document.getElementById('nextBtn').style.display='inline-block';
 }
 
 function buildList(){
-  const foodBody  = document.getElementById('foodBody');
-  const drinkBody = document.getElementById('drinkBody');
-  foodBody.innerHTML  = '';
-  drinkBody.innerHTML = '';
+  const foodBody=document.getElementById('foodBody');
+  const drinkBody=document.getElementById('drinkBody');
+  foodBody.innerHTML='';
+  drinkBody.innerHTML='';
   data.forEach(d=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${d.formal}</td><td>${d.abbr}</td>`;
-    if(d.type==='food')      foodBody.appendChild(tr);
-    else if(d.type==='drink') drinkBody.appendChild(tr);
+    if(d.type==='food')foodBody.appendChild(tr);else drinkBody.appendChild(tr);
   });
 }
 
-// ボタンイベント
+function setMode(count){
+  questionCount=count;
+  pointsPerQuestion=(count===50?2:1);
+  initQuiz();
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   const gradeBtn=document.getElementById('gradeBtn');
   const nextBtn =document.getElementById('nextBtn');
   const listBtn =document.getElementById('listBtn');
   const backBtn =document.getElementById('backBtn');
+  const mode10Btn=document.getElementById('mode10Btn');
+  const mode50Btn=document.getElementById('mode50Btn');
 
   gradeBtn.addEventListener('click',gradeQuiz);
   nextBtn.addEventListener('click',initQuiz);
@@ -236,6 +247,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('listView').style.display='none';
     document.getElementById('quizView').style.display='block';
   });
+
+  mode10Btn.addEventListener('click',()=>setMode(10));
+  mode50Btn.addEventListener('click',()=>setMode(50));
 
   initQuiz();
 });
