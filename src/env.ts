@@ -1,0 +1,9 @@
+export const SITE_NAME = process.env.SITE_NAME || 'KU-DETA';
+export const SITE_URL = process.env.SITE_URL || 'https://example.com';
+export const SITE_TEL = process.env.SITE_TEL || '';
+export const SITE_ADDRESS = process.env.SITE_ADDRESS || '';
+export const SITE_HOURS = process.env.SITE_HOURS || '';
+export const RESERVE_URL = process.env.RESERVE_URL || '';
+export const LINE_URL = process.env.LINE_URL || '';
+export const INSTAGRAM_URL = process.env.INSTAGRAM_URL || '';
+export const GOOGLE_MAPS_EMBED = process.env.GOOGLE_MAPS_EMBED || '';
