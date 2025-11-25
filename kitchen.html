@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>KU-DETA Kitchen Quest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f5f5f7;
+      color: #333;
+    }
+    header {
+      background: #111827;
+      color: #f9fafb;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+    header small {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      margin-right: 4px;
+      border-radius: 999px;
+      font-size: 10px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    main {
+      padding: 12px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .top-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    input[type="search"] {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 13px;
+      outline: none;
+    }
+    input[type="search"]:focus {
+      border-color: #111827;
+    }
+    .pill-button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      background: #e5e7eb;
+    }
+    .pill-button.active {
+      background: #111827;
+      color: #f9fafb;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      cursor: pointer;
+    }
+    .toggle input {
+      accent-color: #111827;
+    }
+    .recipe-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+    }
+    .card h2 {
+      font-size: 14px;
+      margin: 0 0 4px 0;
+    }
+    .card .subtitle {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .card .tags {
+      margin-top: 4px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      margin-right: 4px;
+      margin-top: 2px;
+    }
+
+    /* 詳細モーダル */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 12px;
+    }
+    .modal {
+      background: #f9fafb;
+      max-width: 700px;
+      width: 100%;
+      max-height: 100%;
+      border-radius: 18px;
+      padding: 14px 16px 16px;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(15,23,42,0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .modal-title {
+      font-size: 17px;
+      margin: 0;
+    }
+    .modal-sub {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+    .close-btn {
+      border-radius: 999px;
+      border: none;
+      background: #111827;
+      color: #f9fafb;
+      width: 26px;
+      height: 26px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #4b5563;
+    }
+    ul, ol {
+      margin: 4px 0 4px 18px;
+      padding: 0;
+      font-size: 12px;
+    }
+    li {
+      margin-bottom: 2px;
+    }
+    .point-box {
+      font-size: 11px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      background: #fef3c7;
+      border: 1px solid #facc15;
+      margin-top: 6px;
+    }
+    .muted {
+      opacity: 0.6;
+    }
+    .pill-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .empty {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Kitchen Quest</h1>
+      <small>KU-DETA 前菜＆サラダレシピ図鑑</small>
+    </div>
+    <div>
+      <span class="badge">v1.0 サラダ編</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="top-controls">
+      <input id="searchInput" type="search" placeholder="シェフサラ / シザサラ / 器 などで検索" />
+      <button id="filterAll" class="pill-button active">すべて</button>
+      <button id="filterSalad" class="pill-button">サラダ</button>
+      <button id="filterAppetizer" class="pill-button">前菜</button>
+      <label class="toggle">
+        <input id="toggleStudy" type="checkbox" />
+        暗記モード
+      </label>
+    </div>
+
+    <div id="recipeList" class="recipe-list"></div>
+    <div id="emptyMessage" class="empty" style="display:none;">
+      該当するレシピが見つかりませんでした。キーワードを変えてみてください。
+    </div>
+  </main>
+
+  <!-- 詳細モーダル -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle" class="modal-title"></h2>
+          <div id="modalSub" class="modal-sub"></div>
+          <div class="chips" id="modalChips"></div>
+        </div>
+        <button class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+
+      <div>
+        <div class="section-title">材料</div>
+        <ul id="modalIngredients"></ul>
+
+        <div class="section-title">手順</div>
+        <ol id="modalSteps"></ol>
+
+        <div id="modalPointsBox" class="point-box" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- レシピデータ ---
+    const recipes = [
+      {
+        id: "chef-salad",
+        name: "シェフの気まぐれサラダ",
+        short: "シェフサラ",
+        category: "サラダ",
+        plate: "水色の楕円のお皿",
+        tags: ["サラダ", "前菜", "水色楕円"],
+        ingredients: [
+          { label: "サラダベース（単品）", amount: "60~70g（見た目のボリュームで判断）" },
+          { label: "オニスラ（単品）", amount: "5g" },
+          { label: "ドレッシング（単品）", amount: "30g" },
+          { label: "粉チーズ（単品）", amount: "2g" },
+          { label: "カポナータ", amount: "1人あたり10g" },
+          { label: "きのこのガーリックオイル", amount: "1人あたり8g" },
+          { label: "かぼちゃのアグロドルチェ", amount: "1人あたり8g（大きい場合はカット）" },
+          { label: "その他前菜（グリルにんじん・大根・ピクルス など）", amount: "人数に応じて" },
+          { label: "サラダベース（コース）", amount: "1人あたり20g" },
+          { label: "オニスラ（コース）", amount: "1人あたり2g" },
+          { label: "ドレッシング（コース）", amount: "サラダベースの半量弱" },
+          { label: "具材（コース）", amount: "4種類" }
+        ],
+        steps: [
+          "単品の場合、人数に応じて前菜の種類と個数を決める（2名6種×2、3名5種×3、4名4種×4）。",
+          "サラダベース・オニスラ・ドレッシングをボウルで和える。",
+          "水色の楕円皿にサラダをこんもりと盛る。",
+          "カポナータを真ん中に、その周りに他の前菜を彩りよく配置する。",
+          "仕上げに粉チーズを全体にかける。"
+        ],
+        points: [
+          "人数によって『種類数×個数』が変わるので、ここを間違えないこと。",
+          "真ん中にカポナータを置いて“主役感”を出す。",
+          "彩り重視：オレンジ（かぼちゃ・にんじん）、赤（カポナータ）、緑（野菜）を散らす。"
+        ]
+      },
+      {
+        id: "caesar-salad",
+        name: "クラシックシーザーサラダ",
+        short: "シザサラ",
+        category: "サラダ",
+        plate: "水色の楕円のお皿",
+        tags: ["サラダ", "前菜", "水色楕円"],
+        ingredients: [
+          { label: "シザドレ", amount: "25g" },
+          { label: "粉チーズ（ベース用）", amount: "5g" },
+          { label: "EXオイル", amount: "10g" },
+          { label: "ロメインレタス", amount: "90~100g" },
+          { label: "ミニトマト", amount: "1.5個（1/4カット×6）" },
+          { label: "ベーコン", amount: "6個" },
+          { label: "アヒージョバゲット", amount: "6枚" },
+          { label: "フライドオニオン", amount: "3g" },
+          { label: "粉チーズ（仕上げ用）", amount: "2g" },
+          { label: "ブラックペッパー", amount: "仕上げ用 適量" }
+        ],
+        steps: [
+          "鉄板にベーコン6個をのせ、油をかけて絡める。1分ほど焼いたらひっくり返す。",
+          "同じ鉄板にアヒージョバゲットを並べ、バターオイルをかける。1分ほどでひっくり返す。",
+          "木のボウルにシザドレ・粉チーズ・EXオイルを入れてよく混ぜる。",
+          "ロメインレタスを15cm程度にちぎり、サラダスピナーでしっかり水切りする。",
+          "3のボウルに4を入れ、レタスにソースをまんべんなく絡める。",
+          "ミニトマトを1/4カットにする。",
+          "水色の楕円皿にレタスを盛り、その上にミニトマト・ベーコン・バゲットを配置する。",
+          "粉チーズ・ブラックペッパー・フライドオニオンをかけて仕上げる。"
+        ],
+        points: [
+          "レタスは水分が残っていると味がぼやけるので、水切りをしっかり。",
+          "ベーコンとバゲットは『カリッと感』が命。焼きすぎ・生焼けに注意。",
+          "ドレッシングは全体に薄くコーティングされる量。絡めすぎて“べちゃっと”させない。"
+        ]
+      },
+      {
+        id: "guacamole",
+        name: "ワカモレ",
+        short: "ワカモレ",
+        category: "前菜",
+        plate: "フォンデュプレート＋オレンジの器",
+        tags: ["前菜", "ディップ", "オレンジの器"],
+        ingredients: [
+          { label: "アボカド", amount: "60g（やわらかいもの）" },
+          { label: "トマト", amount: "20g（5mmサイコロカット）" },
+          { label: "オニスラ", amount: "10g（みじん切り）" },
+          { label: "ガーリックオイル", amount: "1g" },
+          { label: "ブラックペッパー", amount: "ひとつまみ" },
+          { label: "岩塩", amount: "1g" },
+          { label: "ドリトス", amount: "1袋" }
+        ],
+        steps: [
+          "よく熟れたアボカドを使う。固いものは使わず、変色している部分も除く。",
+          "アボカドはスプーンですくってボウルへ（カットはしない）。",
+          "トマトを5mmのサイコロ状にカットする。",
+          "オニスラをみじん切りにする。",
+          "ボウルにドリトス以外の全ての材料を入れ、潰しながら混ぜる（多少形が残るくらいで止める）。",
+          "必ず味見をして、塩気や酸味のバランスを確認する。",
+          "オレンジの器に盛り、ドリトス1袋をフォンデュプレートに盛り付ける。"
+        ],
+        points: [
+          "アボカドが固いと一気にクオリティダウン。仕込み段階で熟度チェックを徹底。",
+          "混ぜすぎるとペースト状になり“ワカモレ感”がなくなるので、粒感を残すイメージで。",
+          "必ず味見！スタッフによって塩の振り加減がブレやすいメニュー。"
+        ]
+      }
+      // ★ この下に「ゼンモリ」「ロービー」「カルパ」「チーモリ」…を同じ形式で追加していけば完成形に近づきます
+    ];
+
+    // --- 状態 ---
+    let currentFilter = "all"; // all / salad / appetizer
+    let studyMode = false;
+    let currentRecipeId = null;
+
+    const searchInput = document.getElementById("searchInput");
+    const recipeListEl = document.getElementById("recipeList");
+    const emptyMsgEl = document.getElementById("emptyMessage");
+    const toggleStudyEl = document.getElementById("toggleStudy");
+    const filterAllBtn = document.getElementById("filterAll");
+    const filterSaladBtn = document.getElementById("filterSalad");
+    const filterAppetizerBtn = document.getElementById("filterAppetizer");
+
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSub = document.getElementById("modalSub");
+    const modalChips = document.getElementById("modalChips");
+    const modalIngredients = document.getElementById("modalIngredients");
+    const modalSteps = document.getElementById("modalSteps");
+    const modalPointsBox = document.getElementById("modalPointsBox");
+
+    function renderList() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const filtered = recipes.filter(r => {
+        if (currentFilter === "salad" && r.category !== "サラダ") return false;
+        if (currentFilter === "appetizer" && r.category !== "前菜") return false;
+
+        if (!keyword) return true;
+        const haystack = [
+          r.name,
+          r.short,
+          r.plate,
+          ...(r.tags || [])
+        ].join(" ").toLowerCase();
+        return haystack.includes(keyword);
+      });
+
+      recipeListEl.innerHTML = "";
+      emptyMsgEl.style.display = filtered.length ? "none" : "block";
+
+      filtered.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => openModal(r.id);
+
+        const title = document.createElement("h2");
+        title.textContent = `${r.name}（${r.short}）`;
+
+        const subtitle = document.createElement("div");
+        subtitle.className = "subtitle";
+        subtitle.textContent = r.plate;
+
+        const tags = document.createElement("div");
+        tags.className = "tags";
+        (r.tags || []).forEach(t => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          span.textContent = `#${t}`;
+          tags.appendChild(span);
+        });
+
+        card.appendChild(title);
+        card.appendChild(subtitle);
+        card.appendChild(tags);
+
+        recipeListEl.appendChild(card);
+      });
+    }
+
+    function openModal(id) {
+      const r = recipes.find(x => x.id === id);
+      if (!r) return;
+      currentRecipeId = id;
+
+      modalTitle.textContent = `${r.name}（${r.short}）`;
+      modalSub.textContent = r.plate;
+
+      modalChips.innerHTML = "";
+      const catChip = document.createElement("span");
+      catChip.className = "chip";
+      catChip.textContent = r.category;
+      modalChips.appendChild(catChip);
+      (r.tags || []).forEach(t => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = `#${t}`;
+        modalChips.appendChild(c);
+      });
+
+      modalIngredients.innerHTML = "";
+      (r.ingredients || []).forEach(ing => {
+        const li = document.createElement("li");
+        let text = ing.label + "：";
+        if (studyMode) {
+          // 暗記モード：数字を隠す（簡易実装）
+          const hidden = ing.amount.replace(/[0-9０-９]+[^g個枚本袋秒分~×]*?/g, "??");
+          text += hidden;
+        } else {
+          text += ing.amount;
+        }
+        li.textContent = text;
+        modalIngredients.appendChild(li);
+      });
+
+      modalSteps.innerHTML = "";
+      (r.steps || []).forEach(step => {
+        const li = document.createElement("li");
+        li.textContent = step;
+        modalSteps.appendChild(li);
+      });
+
+      if (r.points && r.points.length) {
+        modalPointsBox.style.display = "block";
+        modalPointsBox.innerHTML = "<strong>※ポイント</strong><br>" +
+          r.points.map(p => "・" + p).join("<br>");
+      } else {
+        modalPointsBox.style.display = "none";
+      }
+
+      modalBackdrop.style.display = "flex";
+    }
+
+    function closeModal() {
+      modalBackdrop.style.display = "none";
+      currentRecipeId = null;
+    }
+
+    // イベント設定
+    searchInput.addEventListener("input", renderList);
+
+    toggleStudyEl.addEventListener("change", () => {
+      studyMode = toggleStudyEl.checked;
+      // 開いているレシピの材料も更新
+      if (currentRecipeId) {
+        openModal(currentRecipeId);
+      } else {
+        renderList();
+      }
+    });
+
+    filterAllBtn.addEventListener("click", () => {
+      currentFilter = "all";
+      filterAllBtn.classList.add("active");
+      filterSaladBtn.classList.remove("active");
+      filterAppetizerBtn.classList.remove("active");
+      renderList();
+    });
+
+    filterSaladBtn.addEventListener("click", () => {
+      currentFilter = "salad";
+      filterAllBtn.classList.remove("active");
+      filterSaladBtn.classList.add("active");
+      filterAppetizerBtn.classList.remove("active");
+      renderList();
+    });
+
+    filterAppetizerBtn.addEventListener("click", () => {
+      currentFilter = "appetizer";
+      filterAllBtn.classList.remove("active");
+      filterSaladBtn.classList.remove("active");
+      filterAppetizerBtn.classList.add("active");
+      renderList();
+    });
+
+    closeModalBtn.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    // 初期描画
+    renderList();
+  </script>
+</body>
+</html>
